@@ -1,30 +1,35 @@
 package main.java;
 
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
-import org.junit.runners.Suite;
 
-import java.io.File;
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.jupiter.api.extension.TestWatcher;
+import org.junit.rules.MethodRule;
+import org.junit.rules.TestName;
+import org.junit.rules.TestWatchman;
+import org.junit.runner.Description;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.model.FrameworkMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.util.List;
+import java.util.logging.Level;
+
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses(MainTest.class)
+@Suite.SuiteClasses({})
 public class MasterTester {
-    public static TestSuite suite() {
-        try {
-
-            File jarPath = new File(com.github.davidmoten.rx2.Flowables.class.getProtectionDomain().getCodeSource().getLocation()
-                    .toURI().getPath());
-            List<Class<?>> classList = ClasspathInspector.getClassesFromJarFile(jarPath);
+    public static TestSuite suite(String packageName) {
+            //File jarPath = new File(pathName);
+            List<Class<?>> classList = ClasspathInspector.getClassesInPackage(packageName);
             TestSuite suite = new TestSuite();
             for(Class<?> clazz : classList) {
                 Method[] methods = clazz.getMethods();
@@ -35,13 +40,9 @@ public class MasterTester {
                     }
                 }
             }
-            suite.addTest(new JUnit4TestAdapter(com.github.davidmoten.rx2.ActionsTest.class));
+            suite.setName(packageName);
+            suite.addTest(new JUnit4TestAdapter(BlockhoundUnitTest.class));
 
             return suite;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-    return null;
     }
 }
